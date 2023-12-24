@@ -54,6 +54,9 @@ $page = "Data Transaksi";
                                       @if($transaksi->status == 4)
                                         FINISHED
                                       @endif
+                                      @if($transaksi->status == 5)
+                                        REJECTED
+                                      @endif
                                     </td>
                                     <td>
                                         <!-- Button trigger modal -->

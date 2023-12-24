@@ -91,7 +91,7 @@ class HomeSeeder extends Seeder
                 "barang_id"=> null,
                 "jumlah" => 50000,
                 "invoice_id" => "SAL_001",
-                "type"=> 2,
+                "type"=> 1,
                 "status"=> 4
             ]);
 
