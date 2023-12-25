@@ -48,7 +48,7 @@ $page = "Data User";
                               @enderror
                           </div>
                             <div class="form-group">
-                              <label>Email</l
+                              <label>Email</label>
                                  <input type="email" class="form-control @error('email')is-invalid @enderror" name="email" >
                                    @error('email')
                                        <span class="invalid-feedback" role="alert">
