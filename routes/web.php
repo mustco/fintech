@@ -67,34 +67,37 @@ Route::get('jajan/setuju/{invoice_id}', function ($invoice_id) {
 
     foreach($transaksis->get()as $transaksi){
         $total_data +=($transaksi->jumlah * $transaksi->barang->price);
-    }
 
-    $transaksi->update([
-        'status' => 4 //Finish
-    ]);
+        $transaksi->update([
+            'status' => 4 //Finish 
+        ]);
+    }
 
     return redirect()->back()->with("status", "Jajan Di Setujui");
 })->name('jajan.setuju');
 
 Route::get('jajan/tolak/{invoice_id}', function ($invoice_id) {
-    $transaksis = Transaksi::where("invoice_id", $invoice_id);
-
+    $transaksis = Transaksi::where("invoice_id", $invoice_id)->get();
+    // dd($transaksis);
     $total_data = 0;
-
-    foreach($transaksis->get()as $transaksi){
+    
+    foreach($transaksis as $transaksi){
+        $user_transaksi = $transaksi->user_id;
         $total_data +=($transaksi->jumlah * $transaksi->barang->price);
     }
-
-    $saldo = Saldo::where("user_id", $transaksis->get()[0]->user_id)->first();
-
+    // dd($user_transaksi);
+    $saldo = Saldo::where("user_id", $user_transaksi)->first();
+    // dd($saldo);
     $saldo->update([
         "saldo"=> $saldo->saldo + $total_data
     ]);
 
-    $transaksi->update([
-        'status' => 5 //Ditolak
-    ]);
-
+    foreach($transaksis as $updateTransaksi) {
+        $updateTransaksi->update([
+            'status' => 5 //ditolak
+        ]);
+    }
+   
     return redirect()->back()->with("status", "Jajan Di Tolak");
 })->name('jajan.tolak');
 
@@ -292,17 +295,26 @@ Route::prefix('data_user')->group(function (){
 
 Route::prefix('data_transaksi')->group(function (){
     Route::get('/', function () {
-        $details = Transaksi::where("type", 2)
-                            ->get();
-
-        $transaksis = Transaksi::where("type", 2)
-                                ->groupBy('invoice_id')
-                                ->get();
-        return view("data_transaksi",[
+        $user = Auth::user();
+        $details = Transaksi::where("type", 2)->get();
+        
+        if ($user->role_id == 4) {
+            $transaksis = Transaksi::where("type", 2)
+                ->where("user_id", $user->id)
+                ->groupBy('invoice_id')
+                ->get();
+        } else if ($user->role_id == 1 || $user->role_id == 3) {
+            $transaksis = Transaksi::where("type", 2)
+                ->groupBy('invoice_id')
+                ->get();
+        }
+    
+        return view("data_transaksi", [
             "transaksis" => $transaksis,
             "details" => $details,
         ]);
     })->name("data_transaksi");
+    
 
     Route::get('/data_detail_jajan', function ($id) {
         $users =  Transaksi::where("user_id", Auth::user()->id)->first();
@@ -370,10 +382,19 @@ Route::prefix('data_topup')->group(function (){
         $users =  Transaksi::where("user_id", Auth::user()->id)->get();
         $details = Transaksi::where("type", 1)
                             ->get();
+                          
+        $user = Auth::user();
+        if($user->role_id == 4) {
+            $transaksis = Transaksi::where("type", 1)
+            ->where("user_id", $user->id)
+            ->groupBy('invoice_id')
+            ->get();
+        } else if($user->role_id == 1 || $user->role_id == 2) {
+            $transaksis = Transaksi::where("type", 1)
+            ->groupBy('invoice_id')
+            ->get();
+        }
 
-        $transaksis = Transaksi::where("type", 1)
-                                ->groupBy('invoice_id')
-                                ->get();
         return view("data_topup",[
             "transaksis" => $transaksis,
             "details" => $details,
