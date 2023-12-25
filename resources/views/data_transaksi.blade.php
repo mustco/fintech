@@ -23,7 +23,7 @@ $page = "Data Transaksi";
                         </div>
                     </div>
                 </div>
-
+              
                 <div class="card-body">
                     <table class="table table-bordered">
                         <thead>
@@ -36,7 +36,9 @@ $page = "Data Transaksi";
                             </tr>
                         </thead>
                         <tbody>
+                    
                             @foreach ($transaksis as $key => $transaksi)
+                          {{-- @if (Auth::user()->role_id == 4 && Auth::user()->id == $transaksi->user_id) --}}
                                 <tr>
                                     <td>{{ $key+1 }}</td>
                                     <td>{{ $transaksi->user->name }}</td>
@@ -127,6 +129,8 @@ $page = "Data Transaksi";
                                         </div>
                                     </td>
                                 </tr>
+                          {{-- @endif --}}
+
                             @endforeach
                         </tbody>
                     </table>
